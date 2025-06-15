@@ -3,6 +3,6 @@ import vue from '@vitejs/plugin-vue'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: '/aesthetics/', // Set base for GitHub Pages
+  base: '/AESTHETICS/', // Set base path for GitHub Pages deployment
   plugins: [vue()],
 })

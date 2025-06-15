@@ -129,7 +129,7 @@ export default {
   name: 'Welcome',
   data() {
     return {
-      loading: true,
+      loading: sessionStorage.getItem('aestheticsLoaded') !== 'true',
       barWidth: 0,
       randomQuote: ''
     };
@@ -147,6 +147,7 @@ export default {
       clearInterval(interval);
       this.barWidth = 100;
       this.loading = false;
+      sessionStorage.setItem('aestheticsLoaded', 'true');
     }, 1800);
     // Animate text
     setTimeout(() => {
