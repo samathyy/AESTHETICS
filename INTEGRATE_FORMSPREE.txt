@@ -1,0 +1,15 @@
+// Instructions for integrating Formspree with your Vue contact form
+
+1. Go to https://formspree.io and sign up for a free account.
+2. Create a new form and copy the endpoint URL provided (it will look like https://formspree.io/f/yourformid).
+3. In your Contact.vue, update the <form> tag to use the Formspree endpoint and method="POST":
+
+<form class="contact-form" action="https://formspree.io/f/yourformid" method="POST">
+  <!-- form fields -->
+</form>
+
+4. Make sure each input has a name attribute (e.g., name="name", name="email", name="message").
+5. Remove the Vue submit handler (e.g., @submit.prevent) for a simple HTML form submission, or use fetch/AJAX for a custom experience.
+6. Test the form—submissions will go to your email!
+
+If you want, I can update your Contact.vue automatically. Just provide your Formspree endpoint URL.
