@@ -24,20 +24,4 @@ const router = createRouter({
   }
 });
 
-// Handle page refresh
-window.addEventListener('beforeunload', () => {
-  if (router.currentRoute.value.path !== '/') {
-    localStorage.setItem('pageRefreshed', 'true');
-  }
-});
-
-router.beforeEach((to, from, next) => {
-  if (localStorage.getItem('pageRefreshed') === 'true') {
-    localStorage.removeItem('pageRefreshed');
-    next('/');
-  } else {
-    next();
-  }
-});
-
 export default router;

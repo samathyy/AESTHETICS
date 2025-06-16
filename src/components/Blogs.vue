@@ -222,7 +222,7 @@ export default {
           id: 6,
           title: 'Web Design Trends for 2025',
           summary: 'Stay ahead of the curve with these top web design trends that will define the digital landscape in 2025.',
-          image: 'https://images.unsplash.com/photo-1465101178521-c1a9136a3b99?auto=format&fit=crop&w=600&q=80',
+          image: require('../assets/images/ui-ux-representations-with-laptop.jpg'),
           badge: 'TRENDS',
           badgeClass: 'badge-trends',
           content: `

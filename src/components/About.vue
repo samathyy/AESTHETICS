@@ -236,6 +236,38 @@ export default {
   0%, 100% { opacity: 1; }
   50% { opacity: 0; }
 }
+.about-section {
+  background: #000;
+  color: #fff;
+  padding: 2rem 0;
+  position: relative;
+  overflow: hidden;
+}
+.about-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+}
+.about-text {
+  flex: 1;
+  min-width: 300px;
+}
+.about-img {
+  flex: 1;
+  min-width: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.about-img img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 1rem;
+  box-shadow: 0 4px 24px rgba(255,111,97,0.13);
+}
 .about-content {
   display: flex;
   flex-direction: column;
@@ -543,77 +575,36 @@ export default {
 }
 @media (max-width: 900px) {
   .about-content {
+    padding: 0 1rem;
     flex-direction: column;
-    gap: 2rem;
-    text-align: center;
   }
-  .about-img img {
-    max-width: 220px;
-  }
-  .about-main-intro {
-    padding: 1.2rem 0.7rem;
-  }
-  .about-main-title {
-    font-size: 2.1rem;
-  }
-  .about-main-desc {
-    font-size: 1.05rem;
-  }
-  .about-text h2 {
-    font-size: 1.4rem;
-  }
-  .problem-title {
-    font-size: 1.4rem;
-  }
-  .problem-section {
-    padding: 2rem 0.5rem;
-    max-width: 100%;
-    margin-left: auto;
-    margin-right: auto;
-  }
-  .problem-paragraphs p {
-    font-size: 1rem;
-  }
-  .why-choose-section {
-    padding: 1.5rem 0.5rem;
-    max-width: 100%;
-  }
-  .why-choose-title {
-    font-size: 1.5rem;
-  }
-  .why-choose-item {
-    padding: 0;
-    max-width: 100%;
-  }
-  .faq-section {
-    padding: 1.5rem 0.5rem;
-    max-width: 100%;
-  }
-  .faq-title {
-    font-size: 1.5rem;
-  }
-  .faq-item {
-    padding: 1rem;
+
+  .about-img {
+    order: -1;
+    margin: 0 auto;
     width: 100%;
+    padding: 0 0.5rem;
   }
-  .about-main-intro,
-  .about-services-block,
-  .problem-section,
-  .why-choose-section {
-    max-width: 92vw; /* smaller on mobile */
-    padding: 0.7rem 0.3rem !important;
-    font-size: 0.97rem;
+
+  .about-img img {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    border-radius: 0.8rem;
   }
-  .faq-item {
-    max-width: 96vw;
-    min-width: unset;
-    padding: 0.5rem 0.3rem;
-    font-size: 0.97rem;
+
+  .about-text {
+    width: 100%;
+    padding: 0 0.5rem;
   }
-  .see-more-btn {
-    width: 90%;
+
+  .about-main-title {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+
+  .about-main-desc {
     font-size: 1rem;
-    padding: 0.7rem 0;
   }
 }
 @media (max-width: 600px) {
