@@ -14,7 +14,7 @@
           </router-link>
         </div>
         <div class="hero-img">
-          <img src="/src/assets/images/aest.png" alt="AEST image" @click="openImageModal" style="cursor:pointer;" />
+          <img src="/src/assets/images/aest.png" alt="AEST image" @click="openImageModal" style="cursor:pointer;" loading="lazy" />
         </div>
       </div>
       <div class="scroll-down" @click="scrollToFeatured">
@@ -28,7 +28,7 @@
       <h2 class="section-title">Featured Work</h2>
       <div class="work-cards">
         <div v-for="(work, i) in featuredWorks" :key="work.title" class="work-card" :style="{ '--delay': i * 0.15 + 's' }">
-          <img :src="work.img" :alt="work.title" />
+          <img :src="work.img" :alt="work.title" loading="lazy" />
           <div class="work-info">
             <h3>{{ work.title }}</h3>
             <p>{{ work.desc }}</p>
@@ -69,7 +69,7 @@
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
         <transition name="modal-img-zoom">
-          <img v-if="showImageModal" class="modal-image" src="/src/assets/images/aest.png" alt="AEST image enlarged" @click="closeImageModal" />
+          <img v-if="showImageModal" class="modal-image" src="/src/assets/images/aest.png" alt="AEST image enlarged" @click="closeImageModal" loading="lazy" />
         </transition>
       </div>
     </transition>

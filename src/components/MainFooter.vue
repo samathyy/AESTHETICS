@@ -9,8 +9,8 @@
         <router-link to="/contact" class="footer-link">Contact</router-link>
       </div>
       <div class="footer-socials">
-        <a href="#" class="footer-social"><svg width="22" height="22"><circle cx="11" cy="11" r="10" fill="#ffb300"/></svg></a>
-        <a href="#" class="footer-social"><svg width="22" height="22"><rect x="3" y="3" width="16" height="16" fill="#ff1744"/></svg></a>
+        <a href="#" class="footer-social" title="Visit our Yellow Social"><svg width="22" height="22"><circle cx="11" cy="11" r="10" fill="#ffb300"/></svg></a>
+        <a href="#" class="footer-social" title="Visit our Red Social"><svg width="22" height="22"><rect x="3" y="3" width="16" height="16" fill="#ff1744"/></svg></a>
       </div>
       <div class="footer-copyright">&copy; 2025 Aesthetics. All rights reserved.</div>
     </div>

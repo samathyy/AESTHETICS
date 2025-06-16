@@ -70,7 +70,7 @@
                 </transition>
               </div>
             </div>
-            <button v-if="faqs.length > 2" class="see-more-btn" @click="showAllFaqs = !showAllFaqs">
+            <button v-if="faqs.length > 2" class="see-more-btn" @click="showAllFaqs = !showAllFaqs" title="Toggle FAQ visibility">
               {{ showAllFaqs ? 'See Less' : 'See More' }}
             </button>
           </section>

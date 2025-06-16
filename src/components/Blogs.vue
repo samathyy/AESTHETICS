@@ -16,7 +16,7 @@
           placeholder="Search Blog"
           class="blog-search-input"
         />
-        <button class="blog-search-btn" @click="searchBlog">
+        <button class="blog-search-btn" @click="searchBlog" title="Search Blog">
           <span class="search-icon">🔍</span>
         </button>
         <ul v-if="showSuggestions && filteredSuggestions.length" class="suggestions-list">
@@ -47,7 +47,7 @@
     <div class="blogs-list">
       <div class="blog-card" v-for="blog in paginatedBlogsFiltered" :key="blog.id">
         <div class="blog-image-block">
-          <img :src="blog.image" :alt="blog.title" class="blog-image" />
+          <img :src="blog.image" :alt="blog.title" class="blog-image" loading="lazy" />
           <span class="blog-badge" :class="blog.badgeClass">{{ blog.badge }}</span>
         </div>
         <div class="blog-content">

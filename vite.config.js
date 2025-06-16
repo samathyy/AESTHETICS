@@ -1,8 +1,18 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 
-// https://vite.dev/config/
+// https://vitejs.dev/config/
 export default defineConfig({
-  base: '/AESTHETICS/', // Set base path for GitHub Pages deployment
+  base: '/my-aesthetic-website/', // Match your GitHub repository name
   plugins: [vue()],
+  build: {
+    outDir: 'dist',
+    assetsDir: 'assets',
+    // Ensure proper handling of dynamic imports
+    rollupOptions: {
+      output: {
+        manualChunks: undefined
+      }
+    }
+  }
 })

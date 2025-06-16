@@ -2,7 +2,7 @@
   <section class="blog-detail-section" v-if="blog">
     <div class="blog-detail-card">
       <div class="blog-detail-image-block">
-        <img :src="blog.image" :alt="blog.title" class="blog-detail-image" />
+        <img :src="blog.image" :alt="blog.title" class="blog-detail-image" loading="lazy" />
         <span class="blog-badge" :class="blog.badgeClass">{{ blog.badge }}</span>
       </div>
       <div class="blog-detail-content">

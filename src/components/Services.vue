@@ -25,26 +25,26 @@
     <div class="services-list-vertical">
       <div class="service-row animated-service" v-for="(service, i) in services" :key="service.title" :id="'service-' + i" :class="{ 'reverse': i % 2 === 1 }">
         <div class="service-image-block">
-          <img v-if="service.img" :src="service.img" :alt="service.title" class="service-img-large" />
+          <img v-if="service.img" :src="service.img" :alt="service.title" class="service-img-large" loading="lazy" />
         </div>
         <div class="service-info-block">
           <h3 class="service-title">{{ service.title }}</h3>
           <p class="service-desc service-detail-desc">{{ service.detailDesc }}</p>
-          <button class="learn-more-btn" @click="openLearnMore(i)">Learn More</button>
-          <button v-if="service.link" class="get-started-btn" @click="openGetStarted(service)">Get Started</button>
+          <button class="learn-more-btn" @click="openLearnMore(i)" title="Learn more about {{ service.title }}">Learn More</button>
+          <button v-if="service.link" class="get-started-btn" @click="openGetStarted(service)" title="Get started with {{ service.title }}">Get Started</button>
         </div>
       </div>
     </div>
     <div v-if="showLearnMore" class="learn-more-modal">
       <div class="learn-more-content">
-        <button class="close-btn" @click="closeLearnMore">&times;</button>
+        <button class="close-btn" @click="closeLearnMore" title="Close">&times;</button>
         <h2>{{ services[activeService].title }} - More Details</h2>
         <p>{{ getLongerDescription(services[activeService]) }}</p>
       </div>
     </div>
     <div v-if="showGetStarted" class="get-started-modal">
       <div class="get-started-content">
-        <button class="close-btn" @click="closeGetStarted">&times;</button>
+        <button class="close-btn" @click="closeGetStarted" title="Close">&times;</button>
         <h2 style="color:#ffb300;">Start a Project</h2>
         <div class="step-indicator">
           <span>Step {{ formStep }} of 3</span>
@@ -88,9 +88,9 @@
             </div>
           </div>
           <div class="form-navigation">
-            <button v-if="formStep > 1 && formStep <= 3" type="button" class="get-started-btn prev-btn" @click="handlePrev">Previous</button>
-            <button v-if="formStep === 3" type="submit" class="get-started-btn next-btn">Submit</button>
-            <button v-else type="submit" class="get-started-btn next-btn">Next</button>
+            <button v-if="formStep > 1 && formStep <= 3" type="button" class="get-started-btn prev-btn" @click="handlePrev" title="Previous step">Previous</button>
+            <button v-if="formStep === 3" type="submit" class="get-started-btn next-btn" title="Submit form">Submit</button>
+            <button v-else type="submit" class="get-started-btn next-btn" title="Next step">Next</button>
           </div>
         </form>
       </div>

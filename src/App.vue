@@ -96,7 +96,7 @@
       </ul>
     </nav>
     <transition name="advanced-fade">
-      <div v-if="navLoading" class="loading-screen minimal-loading">
+      <div v-if="navLoading && $route.path !== '/'" class="loading-screen minimal-loading">
         <div class="svg-loader minimal-svg-loader">
           <svg width="100" height="100" viewBox="0 0 100 100">
             <defs>
@@ -114,13 +114,9 @@
         </div>
       </div>
     </transition>
-    <main>
-      <router-view v-slot="{ Component, route }">
-        <component :is="Component" v-if="Component" />
-        <div v-else class="route-fallback">Sorry, this page could not be loaded.</div>
-      </router-view>
-    </main>
-    <!-- Custom Cursor Markup -->
+    <router-view v-slot="{ Component }">
+      <component :is="Component" />
+    </router-view>
     <div id="custom-cursor">
       <svg class="cursor-svg" width="48" height="48">
         <circle class="cursor-svg-ring" cx="24" cy="24" r="18" />
@@ -130,185 +126,93 @@
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted, onUnmounted, nextTick } from 'vue';
-import { useRouter } from 'vue-router';
-import loadingMixin from './mixins/loadingMixin';
-
-const menuOpen = ref(false);
-const isMobile = ref(window.innerWidth <= 700);
-const navLoading = ref(false);
-const showSearch = ref(false);
-const showSearchPopup = ref(false);
-const searchQuery = ref('');
-const searchResults = ref([]);
-const navItems = [
-  { to: '/home', label: 'Home' },
-  { to: '/services', label: 'Services' },
-  { to: '/blogs', label: 'Blogs' },
-  { to: '/about', label: 'About' },
-  { to: '/contact', label: 'Contact' },
-];
-const allSearchable = [
-  ...navItems.map(i => ({ label: i.label, snippet: '' })),
-  // About page content
-  { label: 'AESTHETICS', snippet: 'A creative graphic design company dedicated to transforming your vision into stunning visuals.' },
-  { label: 'What We Offer', snippet: 'Brand Consulting, Visual Identity, Packaging, Corporate Profiles, Marketing Materials, Website Design, Space Branding.' },
-  { label: 'What Problem Are We Solving?', snippet: 'We help brands communicate their value and vision through compelling design.' },
-  { label: 'Why Choose Us?', snippet: 'We create compelling experiences and value your comfort & time.' },
-  // More About page highlights
-  { label: 'Consultation', snippet: 'Expert advice for your brand’s growth and sustainability.' },
-  { label: 'Visual Identity', snippet: 'Crafting unique logos, color palettes, and brand visuals.' },
-  { label: 'Product Package Design', snippet: 'Attractive, functional packaging for your products.' },
-  { label: 'Company Profile', snippet: 'Professional company profiles that tell your story.' },
-  { label: 'Marketing & Brand Collateral', snippet: 'Brochures, flyers, and all marketing materials you need.' },
-  { label: 'Web Design & Management', snippet: 'Modern, responsive websites for your business.' },
-  { label: 'Environmental Branding', snippet: 'Transforming spaces to reflect your brand identity.' },
-  // Services page content
-  { label: 'Branding', snippet: 'Branding is the heart of our services. We build brands that send the right message.' },
-  { label: 'Brand Consulting & Strategy', snippet: 'Consulting and strategy for your brand.' },
-  { label: 'Visual Identity Systems', snippet: 'Creating unique visual identities.' },
-  { label: 'Packaging & Product Design', snippet: 'Designing packaging and products.' },
-  { label: 'Corporate Profile Creation', snippet: 'Professional corporate profiles.' },
-  { label: 'Marketing & Promotional Materials', snippet: 'Marketing and promotional design.' },
-  { label: 'Website Design & Digital Management', snippet: 'Web design and digital management.' },
-  { label: 'Environmental & Space Branding', snippet: 'Branding for spaces and environments.' },
-  // Blogs page content (sample, you can add more dynamically)
-  { label: 'Blog: Welcome', snippet: 'Welcome to our blog section.' },
-  { label: 'Blog: Branding Tips', snippet: 'Tips and insights on branding.' },
-  { label: 'Blog: Design Trends', snippet: 'Latest trends in design.' },
-  // More Blog entries
-  { label: 'Having a website for your business is not a luxury but a necessity', snippet: 'Why every business needs a website in 2025. Credibility, accessibility, and marketing hub.' },
-  { label: 'Why Your Business Needs a Review Section: A Lesson from a Young Mother', snippet: 'The power of reviews for trust, SEO, and sales. Real story and actionable tips.' },
-  { label: 'Is Branding Really Necessary?', snippet: 'Branding is the soul of your business. Recognition, trust, and emotional connection.' },
-  { label: 'The Psychology of Color in Graphic Design', snippet: 'How color influences perception and emotions in branding and design.' },
-  // Add more as needed
-];
-
-const router = useRouter();
-
-function toggleMenu() { menuOpen.value = !menuOpen.value; }
-function closeMenu() { menuOpen.value = false; }
-function handleResize() { isMobile.value = window.innerWidth <= 700; if (!isMobile.value) menuOpen.value = false; }
-
-function handleNavLinkClick(to) {
-  navLoading.value = true;
-  const minLoadingTime = 700; // ms
-  const start = Date.now();
-  if (isMobile.value) closeMenu();
-  router.push(to).catch(() => {})
-    .finally(() => {
-      const elapsed = Date.now() - start;
-      const remaining = minLoadingTime - elapsed;
-      if (remaining > 0) {
-        setTimeout(() => { navLoading.value = false; }, remaining);
-      } else {
-        navLoading.value = false;
+<script>
+export default {
+  data() {
+    return {
+      menuOpen: false,
+      isMobile: false,
+      showSearchPopup: false,
+      searchQuery: '',
+      searchResults: [],
+      navLoading: false,
+      navItems: [
+        { to: '/home', label: 'Home' },
+        { to: '/services', label: 'Services' },
+        { to: '/blogs', label: 'Blogs' },
+        { to: '/about', label: 'About' },
+        { to: '/contact', label: 'Contact' },
+      ]
+    }
+  },
+  watch: {
+    $route(to, from) {
+      // Only show loading for non-Welcome page transitions
+      if (to.path !== '/' && from.path !== '/') {
+        this.navLoading = true;
+        setTimeout(() => {
+          this.navLoading = false;
+        }, 800);
       }
-    });
-}
+    }
+  },
+  mounted() {
+    this.isMobile = window.innerWidth <= 700;
+    window.addEventListener('resize', this.checkMobile);
+    // Initialize custom cursor
+    this.initCustomCursor();
+  },
+  methods: {
+    checkMobile() {
+      this.isMobile = window.innerWidth <= 700;
+    },
+    toggleMenu() {
+      this.menuOpen = !this.menuOpen;
+    },
+    closeMenu() {
+      this.menuOpen = false;
+    },
+    openSearchPopup() {
+      this.showSearchPopup = true;
+      this.searchQuery = '';
+      this.searchResults = [];
+    },
+    closeSearchPopup() {
+      this.showSearchPopup = false;
+      this.searchQuery = '';
+      this.searchResults = [];
+    },
+    handleNavLinkClick(path) {
+      this.closeMenu();
+      if (this.$route.path !== path) {
+        // Show loading only when navigating between non-Welcome pages
+        if (this.$route.path !== '/' && path !== '/') {
+          this.navLoading = true;
+          setTimeout(() => {
+            this.navLoading = false;
+          }, 800);
+        }
+        this.$router.push(path);
+      }
+    },
+    initCustomCursor() {
+      const cursor = document.getElementById('custom-cursor');
+      const cursorDot = cursor.querySelector('.cursor-dot');
+      const cursorRing = cursor.querySelector('.cursor-svg-ring');
+      
+      const moveCursor = (e) => {
+        const x = e.clientX;
+        const y = e.clientY;
+        cursor.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+      };
 
-function openSearchPopup() {
-  showSearchPopup.value = true;
-  searchQuery.value = '';
-  searchResults.value = [];
-  nextTick(() => {
-    const input = document.querySelector('.search-popup-input');
-    if (input) input.focus();
-  });
-}
-
-function closeSearchPopup() {
-  showSearchPopup.value = false;
-  searchQuery.value = '';
-  searchResults.value = [];
-}
-
-function onSearchInput() {
-  const q = searchQuery.value.trim().toLowerCase();
-  if (!q) {
-    searchResults.value = [];
-    return;
+      document.addEventListener('mousemove', moveCursor);
+    }
+  },
+  beforeDestroy() {
+    window.removeEventListener('resize', this.checkMobile);
   }
-  searchResults.value = allSearchable.filter(item => item.label.toLowerCase().includes(q) || (item.snippet && item.snippet.toLowerCase().includes(q)));
 }
-
-function onSearchEnter() {
-  if (searchResults.value.length) goToSuggestion(searchResults.value[0].label);
-}
-
-function goToSuggestion(suggestion) {
-  const nav = navItems.find(i => i.label === suggestion);
-  if (nav) {
-    router.push(nav.to);
-    closeSearchPopup();
-    return;
-  }
-  if (suggestion === 'Home') router.push('/home');
-  else if (suggestion === 'Services') router.push('/services');
-  else if (suggestion === 'Contact') router.push('/contact');
-  else if (suggestion === 'Blogs') router.push('/blogs');
-  else if (suggestion === 'About') router.push('/about');
-  closeSearchPopup();
-}
-
-function highlightMatch(text, query) {
-  if (!query) return text;
-  const regex = new RegExp(`(${query})`, 'gi');
-  return text.replace(regex, '<mark>$1</mark>');
-}
-
-onMounted(() => {
-  window.addEventListener('resize', handleResize);
-  // Always redirect to Welcome page on reload if not already there
-  if (window.location.pathname !== '/') {
-    window.location.replace('/');
-  }
-});
-onUnmounted(() => {
-  window.removeEventListener('resize', handleResize);
-});
-
-// Custom Cursor Logic
-onMounted(() => {
-  // Smooth Custom Cursor v3
-  const cursor = document.getElementById('custom-cursor');
-  if (!cursor) return;
-  const dot = cursor.querySelector('.cursor-dot');
-  const svg = cursor.querySelector('.cursor-svg');
-  const ring = cursor.querySelector('.cursor-svg-ring');
-  let mouseX = 0, mouseY = 0, dotX = 0, dotY = 0, ringX = 0, ringY = 0;
-  let dotSpeed = 0.32, ringSpeed = 0.14;
-  const lerp = (a, b, n) => (1 - n) * a + n * b;
-  function animateCursor() {
-    dotX = lerp(dotX, mouseX, dotSpeed);
-    dotY = lerp(dotY, mouseY, dotSpeed);
-    ringX = lerp(ringX, mouseX, ringSpeed);
-    ringY = lerp(ringY, mouseY, ringSpeed);
-    dot.style.transform = `translate3d(${dotX - 6}px, ${dotY - 6}px, 0)`;
-    svg.style.transform = `translate3d(${ringX - 24}px, ${ringY - 24}px, 0)`;
-    requestAnimationFrame(animateCursor);
-  }
-  animateCursor();
-  document.addEventListener('mousemove', (e) => {
-    mouseX = e.clientX;
-    mouseY = e.clientY;
-  });
-  // Cursor hover effect for links and buttons
-  const addCursorHover = (el) => {
-    el.addEventListener('mouseenter', () => {
-      ring.classList.add('active');
-      dot.classList.add('active');
-    });
-    el.addEventListener('mouseleave', () => {
-      ring.classList.remove('active');
-      dot.classList.remove('active');
-    });
-  };
-  document.querySelectorAll('a, button, .nav-links li, .service-card, .catchy-item').forEach(addCursorHover);
-  // Hide on mobile
-  if (window.innerWidth < 700) cursor.style.display = 'none';
-});
 </script>
 
 <style scoped>

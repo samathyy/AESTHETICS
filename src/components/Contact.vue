@@ -2,9 +2,9 @@
   <div class="contact-container">
     <div class="contact-left">
       <div class="social-icons">
-        <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-        <a href="#" aria-label="Pinterest"><i class="fab fa-pinterest-p"></i></a>
+        <a href="#" aria-label="Facebook" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+        <a href="#" aria-label="Instagram" title="Instagram"><i class="fab fa-instagram"></i></a>
+        <a href="#" aria-label="Pinterest" title="Pinterest"><i class="fab fa-pinterest-p"></i></a>
       </div>
       <div class="contact-content">
         <div class="contact-bar">
@@ -18,7 +18,7 @@
       </div>
     </div>
     <div class="contact-right">
-      <img :src="contactImg" alt="Contact" class="contact-image" />
+      <img :src="contactImg" alt="Contact" class="contact-image" loading="lazy" />
     </div>
   </div>
   <div class="connect-section">
@@ -73,7 +73,7 @@
       <div class="form-row">
         <textarea v-model="form.message" name="message" placeholder="Your Message" rows="5" required></textarea>
       </div>
-      <button type="submit" class="send-btn">Send Message</button>
+      <button type="submit" class="send-btn" title="Send Message">Send Message</button>
     </form>
     <div v-if="submitted" class="form-success">Thank you for reaching out! We'll get back to you soon.</div>
   </div>
@@ -83,6 +83,7 @@
       class="email-float"
       @click.prevent="showEmailConfirm = true"
       aria-label="Email Aesthetics"
+      title="Email Aesthetics"
       style="margin-bottom: 0; transform: translateX(-10px);"
     >
       <svg width="56" height="56" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -95,6 +96,7 @@
       class="whatsapp-float"
       @click.prevent="showWhatsAppConfirm = true"
       aria-label="Chat on WhatsApp"
+      title="Chat on WhatsApp"
     >
       <svg width="56" height="56" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
         <circle cx="28" cy="28" r="28" fill="#25D366"/>
@@ -106,15 +108,15 @@
   <div v-if="showEmailConfirm" class="whatsapp-confirm-modal">
     <div class="whatsapp-confirm-content">
       <p>Email aesthetics?</p>
-      <button @click="goToEmail" class="yes-btn">Yes</button>
-      <button @click="showEmailConfirm = false" class="no-btn">No</button>
+      <button @click="goToEmail" class="yes-btn" title="Confirm Email">Yes</button>
+      <button @click="showEmailConfirm = false" class="no-btn" title="Cancel Email">No</button>
     </div>
   </div>
   <div v-if="showWhatsAppConfirm" class="whatsapp-confirm-modal">
     <div class="whatsapp-confirm-content">
       <p>Message aesthetics?</p>
-      <button @click="goToWhatsApp" class="yes-btn">Yes</button>
-      <button @click="showWhatsAppConfirm = false" class="no-btn">No</button>
+      <button @click="goToWhatsApp" class="yes-btn" title="Confirm WhatsApp">Yes</button>
+      <button @click="showWhatsAppConfirm = false" class="no-btn" title="Cancel WhatsApp">No</button>
     </div>
   </div>
   <MainFooter />

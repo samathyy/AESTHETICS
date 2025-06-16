@@ -124,48 +124,44 @@ const quotes = [
   'Every pixel counts.',
   'Inspiration starts here.'
 ];
-import { onMounted } from 'vue';
+
 export default {
   name: 'Welcome',
   data() {
     return {
-      loading: sessionStorage.getItem('aestheticsLoaded') !== 'true',
+      loading: true,
       barWidth: 0,
       randomQuote: ''
-    };
+    }
   },
-  mounted() {
-    this.randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-    let progress = 0;
-    const interval = setInterval(() => {
-      if (progress < 100) {
-        progress += 4 + Math.random() * 6;
-        this.barWidth = Math.min(progress, 100);
-      }
-    }, 120);
-    setTimeout(() => {
-      clearInterval(interval);
-      this.barWidth = 100;
-      this.loading = false;
-      sessionStorage.setItem('aestheticsLoaded', 'true');
-    }, 1800);
-    // Animate text
-    setTimeout(() => {
-      document.querySelectorAll('.animate-text').forEach((el, i) => {
-        el.style.opacity = 1;
-        el.style.transform = 'translateY(0)';
-      });
-      document.querySelectorAll('.animate-fadein').forEach((el) => {
-        el.style.opacity = 1;
-      });
-    }, 600);
+  created() {
+    this.startLoading();
   },
   methods: {
+    startLoading() {
+      this.loading = true;
+      this.barWidth = 0;
+      this.randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+      
+      const increment = () => {
+        if (this.barWidth < 100) {
+          this.barWidth += Math.random() * 15;
+          if (this.barWidth > 100) this.barWidth = 100;
+          setTimeout(increment, 100);
+        } else {
+          setTimeout(() => {
+            this.loading = false;
+          }, 500);
+        }
+      }
+      
+      increment();
+    },
     goToHome() {
       this.$router.replace('/home');
-    },
-  },
-};
+    }
+  }
+}
 </script>
 
 <style scoped>
