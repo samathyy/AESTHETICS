@@ -17,8 +17,8 @@ app.use(router)
 // Use Vue Lazyload for better image loading
 app.use(VueLazyload, {
   preLoad: 1.3,
-  error: '/src/assets/images/error.svg',
-  loading: '/src/assets/images/loading.svg',
+  error: '/assets/images/error.svg', // Updated path for Vite public folder
+  loading: '/assets/images/loading.svg',
   attempt: 1
 })
 
