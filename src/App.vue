@@ -12,14 +12,19 @@
           autofocus
         />
         <button class="search-popup-close" @click="closeSearchPopup">&times;</button>
-        <div v-if="searchQuery && searchResults.length" class="search-popup-results">
-          <div class="search-popup-result-title">Found {{ searchResults.length }} result<span v-if="searchResults.length > 1">s</span></div>
-          <ul>
-            <li v-for="result in searchResults" :key="result.label" @click="goToSuggestion(result.label)">
-              <span v-html="highlightMatch(result.label, searchQuery)"></span>
-              <span v-if="result.snippet" class="search-popup-snippet">{{ result.snippet }}</span>
-            </li>
-          </ul>
+        <div v-if="searchQuery && Object.keys(searchResults).length" class="search-popup-results">
+          <div v-for="(results, category) in searchResults" :key="category" class="search-category">
+            <h3 class="search-category-title">{{ category }}</h3>
+            <ul>
+              <li v-for="result in results" :key="result.title" @click="goToSuggestion(result)" class="search-result-item">
+                <div class="search-result-header">
+                  <span v-html="highlightMatch(result.title, searchQuery)" class="search-result-title"></span>
+                  <span v-if="result.badge" class="search-result-badge" :class="'badge-' + result.badge.toLowerCase()">{{ result.badge }}</span>
+                </div>
+                <span v-if="result.snippet" class="search-popup-snippet" v-html="highlightMatch(result.snippet, searchQuery)"></span>
+              </li>
+            </ul>
+          </div>
         </div>
         <div v-else-if="searchQuery && !searchResults.length" class="search-popup-no-results">No results found.</div>
       </div>
@@ -127,6 +132,8 @@
 </template>
 
 <script>
+import { blogStore } from './store/blogs.js';
+
 export default {
   data() {
     return {
@@ -142,7 +149,25 @@ export default {
         { to: '/blogs', label: 'Blogs' },
         { to: '/about', label: 'About' },
         { to: '/contact', label: 'Contact' },
-      ]
+      ],
+      searchCategories: {
+        pages: ['home', 'services', 'about', 'contact'],
+        services: [
+          { title: 'Web Design', description: 'Beautiful and functional web design' },
+          { title: 'SEO Services', description: 'Improve your website ranking' },
+          { title: 'Digital Marketing', description: 'Grow your business online' },
+        ],
+        features: [
+          { title: 'Responsive Design', description: 'Looks great on all devices' },
+          { title: 'Fast Loading', description: 'Optimized for speed' },
+          { title: 'Easy to Use', description: 'User-friendly interfaces' },
+        ],
+      }
+    }
+  },
+  computed: {
+    blogs() {
+      return blogStore.blogs;
     }
   },
   watch: {
@@ -181,6 +206,132 @@ export default {
       this.showSearchPopup = false;
       this.searchQuery = '';
       this.searchResults = [];
+    },
+    onSearchInput() {
+      if (!this.searchQuery.trim()) {
+        this.searchResults = {};
+        return;
+      }
+
+      const query = this.searchQuery.toLowerCase();
+      let results = [];
+
+      // Search through pages
+      this.searchCategories.pages.forEach(page => {
+        if (page.toLowerCase().includes(query)) {
+          results.push({
+            type: 'page',
+            title: page,
+            path: '/' + page.toLowerCase(),
+            category: 'Pages',
+            matchScore: page.toLowerCase().startsWith(query) ? 10 : 5
+          });
+        }
+      });
+
+      // Search through services
+      this.searchCategories.services.forEach(service => {
+        if (service.title.toLowerCase().includes(query) || 
+            service.description.toLowerCase().includes(query)) {
+          results.push({
+            type: 'service',
+            title: service.title,
+            path: '/services',
+            category: 'Services',
+            snippet: service.description,
+            matchScore: service.title.toLowerCase().includes(query) ? 8 : 4
+          });
+        }
+      });
+
+      // Search through features
+      this.searchCategories.features.forEach(feature => {
+        if (feature.title.toLowerCase().includes(query) || 
+            feature.description.toLowerCase().includes(query)) {
+          results.push({
+            type: 'feature',
+            title: feature.title,
+            path: '/services',
+            category: 'Features',
+            snippet: feature.description,
+            matchScore: feature.title.toLowerCase().includes(query) ? 7 : 3
+          });
+        }
+      });
+
+      // Search through blogs
+      this.blogs.forEach(blog => {
+        const titleMatch = blog.title.toLowerCase().includes(query);
+        const summaryMatch = blog.summary.toLowerCase().includes(query);
+        const contentMatch = blog.content.toLowerCase().includes(query);
+        
+        if (titleMatch || summaryMatch || contentMatch) {
+          let matchScore = 0;
+          if (titleMatch) matchScore += 10;
+          if (summaryMatch) matchScore += 5;
+          if (contentMatch) matchScore += 3;
+
+          results.push({
+            type: 'blog',
+            title: blog.title,
+            path: `/blogs/${blog.id}`,
+            category: 'Blog Posts',
+            snippet: this.generateSnippet(blog, query),
+            badge: blog.badge,
+            matchScore
+          });
+        }
+      });
+
+      // Sort results by match score
+      results.sort((a, b) => b.matchScore - a.matchScore);
+
+      // Group results by category
+      const groupedResults = {};
+      results.forEach(result => {
+        if (!groupedResults[result.category]) {
+          groupedResults[result.category] = [];
+        }
+        groupedResults[result.category].push(result);
+      });
+
+      this.searchResults = groupedResults;
+    },
+    generateSnippet(item, query) {
+      let textToSearch = item.summary;
+      if (!textToSearch.toLowerCase().includes(query)) {
+        // If query not found in summary, search in content
+        textToSearch = item.content.replace(/<[^>]*>/g, '');
+      }
+
+      const queryIndex = textToSearch.toLowerCase().indexOf(query);
+      if (queryIndex === -1) return item.summary;
+
+      const start = Math.max(0, queryIndex - 50);
+      const end = Math.min(textToSearch.length, queryIndex + query.length + 50);
+      let snippet = textToSearch.slice(start, end);
+
+      if (start > 0) snippet = '...' + snippet;
+      if (end < textToSearch.length) snippet += '...';
+
+      return snippet;
+    },
+    onSearchEnter() {
+      if (this.searchResults.length > 0) {
+        this.goToSuggestion(this.searchResults[0].label);
+      }
+    },
+    goToSuggestion(label) {
+      const result = this.searchResults.find(r => r.label === label);
+      if (result) {
+        this.closeSearchPopup();
+        this.$router.push(result.path);
+      }
+    },
+    highlightMatch(text, query) {
+      if (!query) return text;
+      const regex = new RegExp(`(${query})`, 'gi');
+      return text.replace(regex, '<mark>$1</mark>');
     },
     handleNavLinkClick(path) {
       this.closeMenu();
@@ -642,96 +793,128 @@ body {
 }
 .search-popup-overlay {
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  z-index: 9999;
-  background: rgba(30, 32, 36, 0.65);
-  backdrop-filter: blur(7px);
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: flex-start;
+  padding-top: 10vh;
+  z-index: 1000;
 }
 .search-popup {
-  background: #fff6f3;
-  border-radius: 1rem;
-  box-shadow: 0 8px 48px #ffb88c33;
-  padding: 2.2rem 2.5rem 1.5rem 2.5rem;
-  min-width: 340px;
-  max-width: 90vw;
-  min-height: 80px;
+  background: #1a1a1a;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 600px;
+  padding: 1.5rem;
   position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 .search-popup-input {
   width: 100%;
-  font-size: 2.2rem;
-  padding: 0.7rem 1.2rem;
-  border-radius: 0.7rem;
+  padding: 1rem 1.5rem;
+  font-size: 1.2rem;
   border: none;
-  background: #fff0ed;
-  color: #414345;
-  margin-bottom: 1.2rem;
-  text-align: center;
-  font-family: inherit;
-  box-shadow: 0 2px 12px #ffb88c11;
+  border-radius: 8px;
+  background: #2a2a2a;
+  color: #fff;
+  outline: none;
+}
+.search-popup-input:focus {
+  box-shadow: 0 0 0 2px #ffb88c;
 }
 .search-popup-close {
   position: absolute;
-  top: 1.1rem;
-  right: 1.3rem;
+  top: 1rem;
+  right: 1rem;
   background: none;
   border: none;
-  font-size: 2.2rem;
-  color: #ff6f61;
+  color: #fff;
+  font-size: 1.5rem;
   cursor: pointer;
-  z-index: 2;
+  padding: 0.5rem;
+  line-height: 1;
 }
 .search-popup-results {
-  width: 100%;
-  margin-top: 0.5rem;
+  margin-top: 1.5rem;
+  max-height: 70vh;
+  overflow-y: auto;
+  padding-right: 0.5rem;
 }
-.search-popup-result-title {
-  color: #ff6f61;
-  font-weight: 700;
-  margin-bottom: 0.7rem;
+.search-category {
+  margin-bottom: 2rem;
+}
+.search-category-title {
+  color: #ffb88c;
   font-size: 1.1rem;
+  margin-bottom: 1rem;
+  padding-left: 0.5rem;
+  font-weight: 600;
 }
-.search-popup-results ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-.search-popup-results li {
-  padding: 0.7rem 0.5rem;
-  border-radius: 0.6rem;
+.search-result-item {
+  padding: 1rem;
+  margin: 0.5rem 0;
+  background: #2a2a2a;
+  border-radius: 8px;
   cursor: pointer;
-  color: #232526;
-  font-size: 1.15rem;
-  margin-bottom: 0.2rem;
-  background: #fff0ed;
-  transition: background 0.18s;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
 }
-.search-popup-results li:hover {
-  background: #ffb88c22;
+.search-result-item:hover {
+  background: #333;
+  transform: translateX(5px);
+  border-color: #ffb88c33;
+}
+.search-result-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+.search-result-title {
+  font-weight: 500;
+  color: #fff;
+}
+.search-result-badge {
+  font-size: 0.7rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
 }
 .search-popup-snippet {
   display: block;
+  font-size: 0.9rem;
   color: #888;
-  font-size: 0.98rem;
-  margin-top: 0.1rem;
+  margin-top: 0.3rem;
+  line-height: 1.4;
 }
-.search-popup-no-results {
-  color: #ff6f61;
-  font-size: 1.1rem;
-  margin-top: 1.2rem;
-  text-align: center;
+mark {
+  background: #ffb88c33;
+  color: #ffb88c;
+  padding: 0 0.2rem;
+  border-radius: 2px;
 }
-.search-popup mark {
-  background: #ffb88c;
-  color: #232526;
-  border-radius: 0.3rem;
-  padding: 0 0.15em;
+/* Custom scrollbar for search results */
+.search-popup-results::-webkit-scrollbar {
+  width: 8px;
+}
+
+.search-popup-results::-webkit-scrollbar-track {
+  background: #1a1a1a;
+  border-radius: 4px;
+}
+
+.search-popup-results::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 4px;
+}
+
+.search-popup-results::-webkit-scrollbar-thumb:hover {
+  background: #444;
 }
 @media (max-width: 700px) {
   .search-popup {
